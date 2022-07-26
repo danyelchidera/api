@@ -8,12 +8,25 @@ using System.Threading.Tasks;
 
 namespace Repository
 {
-    public class CompanyRepository: RepositoryBase<Company>, ICompanyRepository
+    internal sealed class CompanyRepository: RepositoryBase<Company>, ICompanyRepository
     {
         public CompanyRepository(RepositoryContext context)
             : base(context)
         {
          
+        }
+
+        public void CreateCompany(Company company) => Create(company);
+
+        public IEnumerable<Company> GetCompanies(bool trackChanges) => 
+            FindAll(trackChanges)
+                .OrderBy(x => x.Name)
+                .ToList();
+
+        public Company GetCompany(Guid companyId, bool trackChanges)
+        {
+            var company = FindByCondition(x => x.Id == companyId, trackChanges).SingleOrDefault(); 
+            return company;
         }
     }
 }
