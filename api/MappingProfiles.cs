@@ -9,8 +9,14 @@ namespace api
         public MappingProfiles()
         {
             CreateMap<Company, CompanyDTO>()
-                .ForMember(c => c.FullAddress, Opt => Opt.MapFrom(s => string.Join(' ', s.Address, s.Country)));
+                .ForMember(c => c.FullAddress, 
+                Opt => Opt.MapFrom(s => string.Join(' ', s.Address, s.Country)));
+
             CreateMap<Employee, EmployeeDto>();
+
+            CreateMap<CompanyForCreationDto, Company>();
+
+            CreateMap<EmployeeForCreationDto, Employee>();
         }
     }
 }

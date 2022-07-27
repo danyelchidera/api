@@ -17,6 +17,14 @@ namespace Repository
             _context = context;
         }
 
+        public void CreateEmployeeForCompany(Guid companyId, Employee employee)
+        {
+            employee.CompanyId = companyId;
+            Create(employee);
+        }
+
+        public void DeleteEmployee(Employee employee) => Delete(employee);
+
         public Employee GetEmployee(Guid companyId, Guid id, bool trackChanges) =>
             FindByCondition(x => x.CompanyId.Equals(companyId) && x.Id.Equals(id), trackChanges).SingleOrDefault();
             
