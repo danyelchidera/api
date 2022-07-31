@@ -15,7 +15,6 @@ namespace api.Extensions
             {
                 appError.Run(async context =>
                 {
-                    
                     context.Response.ContentType = "application/json";
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
 
