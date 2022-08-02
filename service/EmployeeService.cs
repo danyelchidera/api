@@ -6,6 +6,7 @@ using Repository;
 using Service.Contracts;
 using Shared.DTOs;
 using Shared.RequestFeatures;
+using System.Dynamic;
 
 namespace Service
 {
@@ -14,12 +15,14 @@ namespace Service
         private readonly IRepositoryManager _repo;
         private readonly ILoggerManager _log;
         private readonly IMapper _mapper;
+        private readonly IDataShaper<EmployeeDto> _dataShaper;
 
-        public EmployeeService(IRepositoryManager repo, ILoggerManager log, IMapper mapper)
+        public EmployeeService(IRepositoryManager repo, ILoggerManager log, IMapper mapper, IDataShaper<EmployeeDto> dataShaper)
         {
             _repo = repo;
             _log = log;
             _mapper = mapper;
+            _dataShaper = dataShaper;
            
         }
 
@@ -62,16 +65,21 @@ namespace Service
             return employee;
         }
 
-        public async Task<(IEnumerable<EmployeeDto> employees, MetaData metaData)> GetEmployeesAsync(Guid companyId, EmployeeParameters employeeParameters, bool trackChanges)
+        public async Task<(IEnumerable<ExpandoObject> employees, MetaData metaData)> 
+            GetEmployeesAsync(Guid companyId, EmployeeParameters employeeParameters, bool trackChanges)
         {
+            if (!employeeParameters.ValidAgeRange)
+                throw new MaxAgeRangeBadRequestException();
+
             await CheckIfCompanyExists(companyId, trackChanges);
 
             var employeesWithMetaData = await _repo.Employee.GetEmployeesAsync(companyId, 
                 employeeParameters, trackChanges);
 
             var employeesDTO = _mapper.Map<IEnumerable<EmployeeDto>>(employeesWithMetaData);
+            var shapedData = _dataShaper.ShapeData(employeesDTO, employeeParameters.Fields);
 
-            return (employees: employeesDTO, metaData: employeesWithMetaData.MetaData);
+            return (employees: shapedData, metaData: employeesWithMetaData.MetaData);
         }
         public async Task<(EmployeeForUpdateDto employeeToPatch, Employee employeeEntity)> GetEmployeeForPatchAsync(
             Guid companyId, Guid id, bool compTrackChanges, bool empTrackChanges)

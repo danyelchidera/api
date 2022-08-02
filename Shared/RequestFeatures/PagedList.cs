@@ -20,12 +20,8 @@ namespace Shared.RequestFeatures
             };
             AddRange(items);
         }
-        public static PagedList<T> ToPagedList(IEnumerable<T> source, int pageNumber, int pageSize)
-        {
-            var count = source.Count();
-            var items = source
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize).ToList();    
+        public static PagedList<T> ToPagedList(List<T> items,int count, int pageNumber, int pageSize)
+        { 
             return new PagedList<T>(items, count, pageNumber, pageSize);
         }
     }
